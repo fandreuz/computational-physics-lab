@@ -1,6 +1,6 @@
 program main
    implicit none
-   integer, parameter :: n = 1000, n_bins = 20
+   integer, parameter :: n = 1000000, n_bins = 20
    real, dimension(n) :: x
    real :: mn, mx, db
    integer, dimension(n_bins) :: b1, b2
@@ -12,16 +12,18 @@ program main
    db = (mx - mn)/real(n_bins)
    ls = generate_labels(mn, db, n_bins)
 
-   WRITE (unit=*, fmt=*) "FLOOR -----"
+   !WRITE (unit=*, fmt=*) "FLOOR -----"
 
-   b1 = histogram(x, 0, n_bins)
-   WRITE (unit=*, fmt=*) b1
-   call make_histogram(b1, ls)
+   !b1 = histogram(x, 0, n_bins)
+   !WRITE (unit=*, fmt=*) b1
+   !call make_histogram(b1, ls)
 
-   WRITE (unit=*, fmt=*) "NINT -----"
+   !WRITE (unit=*, fmt=*) "NINT -----"
 !
-   b2 = histogram(x, 1, n_bins)
-   call make_histogram(b2, ls)
+   !b2 = histogram(x, 1, n_bins)
+   !call make_histogram(b2, ls)
+
+   WRITE (unit=*, fmt=*) "mu: ", compute_mu(x), "sigma2: ", compute_sigma2(x)
 
 contains
 
@@ -87,5 +89,20 @@ contains
          deallocate (histogram_line)
       end do
    end subroutine
+
+   function compute_mu(x) result(mu)
+      real, dimension(:) :: x
+      real :: mu
+
+      mu = sum(x)/real(size(x))
+   end function
+
+   function compute_sigma2(x) result(sigma2)
+      real, dimension(:) :: x
+      real :: sigma2, mu
+
+      mu = compute_mu(x)
+      sigma2 = sum((mu - x)**2)/real(size(x))
+   end function
 
 end program main
