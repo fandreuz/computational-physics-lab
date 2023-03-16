@@ -44,10 +44,7 @@ contains
          check_nums(nums(i) + 1) = .TRUE.
       end do
 
-      check = .TRUE.
-      do i = 1, m
-         check = check .and. check_nums(i)
-      end do
+      check = all(check_nums)
    end function
 
    function find_period(a, m, c, seed) result(period)
