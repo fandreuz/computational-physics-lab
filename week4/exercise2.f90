@@ -1,6 +1,6 @@
 program main
    implicit none
-   integer, parameter :: l = 1, N = 1000, runs = 10
+   integer, parameter :: l = 1, N = 1000, runs = 10,  l2 = l*l
    real, parameter :: p_right = 0.5
    real :: xi2
    real, dimension(N) :: moves, l_vec, x, avg_position, avg_sq_position
@@ -19,6 +19,9 @@ program main
    do run = 1, runs
       call random_number(moves)
       x(:) = sign(l_vec, p_right - moves)
+      avg_position(1) = avg_position(1) + x(1)
+      avg_sq_position(1) = avg_sq_position(1) + l2
+
       do i = 2, n
          x(i) = x(i) + x(i - 1)
          xi2 = x(i)*x(i)
