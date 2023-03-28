@@ -22,7 +22,7 @@ program main
    OPEN (unit=1, file="position.dat", status="replace", action="write")
    OPEN (unit=2, file="avg.dat", status="replace", action="write")
    OPEN (unit=3, file="info.dat", status="replace", action="write")
-   OPEN (unit=3, file="P.dat", status="replace", action="write")
+   OPEN (unit=4, file="P.dat", status="replace", action="write")
 
    WRITE (unit=3, fmt=*) p_right, 1 - p_right, l
 
@@ -47,9 +47,9 @@ program main
 
    avg_position(:) = avg_position/runs
    avg_sq_position(:) = avg_sq_position/runs
-   WRITE (unit=2, fmt=*) avg_position
-   WRITE (unit=2, fmt=*) avg_sq_position
-   WRITE (unit=2, fmt=*) avg_sq_position - avg_position**2
+   WRITE (unit=2, fmt=*) avg_position(1:)
+   WRITE (unit=2, fmt=*) avg_sq_position(1:)
+   WRITE (unit=2, fmt=*) avg_sq_position(1:) - avg_position(1:)**2
 
    deallocate(moves)
    deallocate(l_vec)
