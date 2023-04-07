@@ -3,10 +3,10 @@ program main
    ! 0: mean sampling
    ! 1: importance sampling
    integer, parameter :: mode = 1
-   integer :: N = 10000
    real, parameter :: lambda = 1., A = lambda/(1.-exp(-lambda)), truth = 0.74682
    real, dimension(:), allocatable :: x
    real :: f, f2
+   integer :: N
    character(len=32) :: arg_N
 
    call get_command_argument(1, arg_N)
