@@ -1,6 +1,6 @@
 program main
    implicit none
-   real, parameter :: pi = 3.1415926535, truth = 4*pi
+   real, parameter :: pi = 3.1415926535
    integer :: N
    real, dimension(:), allocatable :: x
    real :: f, f2
@@ -12,12 +12,12 @@ program main
    allocate (x(N))
 
    call random_number(x)
-   x = integrand(x)/N
+   x = integrand(x)
    f = sum(x)/N
    f2 = sum(x**2)/N
 
    open (2, file='error.txt', action='write', position='append')
-   WRITE (unit=2, fmt=*) N, abs(truth - f), f2, f2 - f**2, (f2 - f**2)/sqrt(real(N))
+   WRITE (unit=2, fmt=*) N, f, f2, abs(pi - f), f2 - f**2, (f2 - f**2)/sqrt(real(N))
 
 contains
 
@@ -25,7 +25,7 @@ contains
       real, dimension(:) :: input
       real, dimension(size(input)) :: output
 
-      output = sqrt(1 - input**2)
+      output = 4 * sqrt(1 - input**2)
    end function
 
 end program main
