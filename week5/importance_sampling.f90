@@ -1,12 +1,18 @@
 program main
    implicit none
-   integer, parameter :: N = 10000
    ! 0: mean sampling
    ! 1: importance sampling
    integer, parameter :: mode = 1
+   integer :: N = 10000
    real, parameter :: lambda = 1., A = lambda/(1.-exp(-lambda)), truth = 0.74682
-   real, dimension(N) :: x
+   real, dimension(:), allocatable :: x
    real :: f, f2
+   character(len=32) :: arg_N
+
+   call get_command_argument(1, arg_N)
+   read (unit=arg_N, fmt=*) N
+
+   allocate (x(N))
 
    call random_number(x)
    select case (mode)
@@ -20,14 +26,7 @@ program main
    f2 = sum(x**2)/N
 
    open (2, file='error.txt', action='write', position='append')
-
-   WRITE (unit=*, fmt=*) "Estimate: ", f
-   WRITE (unit=*, fmt=*) "Absolute error: ", abs(truth - f)
-   WRITE (unit=*, fmt=*) "<f^2>: ", f2
-   WRITE (unit=*, fmt=*) "<o^2>: ", f2 - f**2
-   WRITE (unit=*, fmt=*) "<o^2>/sqrt(N)", (f2 - f**2)/sqrt(real(N))
-
-   WRITE (unit=2, fmt=*) abs(truth - f), N
+   WRITE (unit=2, fmt=*) N, abs(truth - f), f2, f2 - f**2, (f2 - f**2)/sqrt(real(N))
 
 contains
 
