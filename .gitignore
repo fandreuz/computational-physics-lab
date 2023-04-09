@@ -36,4 +36,5 @@
 **/fort.*
 
 venv/**
-.vscode/**
+**/.vscode/**
+**/.DS_Store
