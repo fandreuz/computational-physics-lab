@@ -33,6 +33,7 @@
 
 **/*.dat
 **/*.txt
+**/fort.*
 
 venv/**
 .vscode/**
