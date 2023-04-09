@@ -80,7 +80,7 @@ program main
    WRITE (unit=4, fmt=*) Gamma(real(N) + 1.)/(Gamma(xp + 1.)*Gamma(xm + 1.))*p_right**xp*p_left**xm
 
    ! compute theoretical limit distribution
-   WRITE (unit=4, fmt=*) exp(-(x_slices(:) - avg_position(N)) ** 2 /(2*msd(N))) * sqrt(2 / (pi*msd(N)))
+   WRITE (unit=4, fmt=*) exp(-(x_slices(:) - avg_position(N))**2/(2*msd(N)))*sqrt(2/(pi*msd(N)))
 
    deallocate (moves)
    deallocate (l_vec)

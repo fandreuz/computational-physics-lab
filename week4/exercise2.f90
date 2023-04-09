@@ -1,6 +1,6 @@
 program main
    implicit none
-   integer, parameter :: l = 1, N = 1000, runs = 10,  l2 = l*l
+   integer, parameter :: l = 1, N = 1000, runs = 10, l2 = l*l
    real, parameter :: p_right = 0.5
    real :: xi2
    real, dimension(N) :: moves, l_vec, x, avg_position, avg_sq_position
