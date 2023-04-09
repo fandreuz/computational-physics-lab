@@ -1,11 +1,11 @@
 program main
    implicit none
    integer, parameter :: l = 1, l2 = l*l
-   real, parameter :: p_right = 0.5, p_left = 1 - p_right
+   real, parameter :: p_right = 0.5, p_left = 1 - p_right, pi = 3.14159265359
    real :: xi2
-   real, allocatable :: moves(:), l_vec(:), x(:), avg_position(:), avg_sq_position(:), PN(:), x_slices(:), xp(:), xm(:)
+   real, allocatable :: moves(:), l_vec(:), x(:), avg_position(:), avg_sq_position(:), msd(:), PN(:), x_slices(:), xp(:), xm(:)
    integer :: i, run, runs, N, n_slices, idx
-   character(len=32)           :: arg_runs, arg_N
+   character(len=32) :: arg_runs, arg_N
 
    call get_command_argument(1, arg_runs)
    read (unit=arg_runs, fmt=*) runs
@@ -20,6 +20,7 @@ program main
    allocate (x(N))
    allocate (avg_position(N))
    allocate (avg_sq_position(N))
+   allocate (msd(N))
 
    allocate (PN(n_slices))
    allocate (x_slices(n_slices))
@@ -60,25 +61,38 @@ program main
 
    avg_position(:) = avg_position/runs
    avg_sq_position(:) = avg_sq_position/runs
+   msd(:) = avg_sq_position - avg_position**2
+
    WRITE (unit=2, fmt=*) avg_position
    WRITE (unit=2, fmt=*) avg_sq_position
-   WRITE (unit=2, fmt=*) avg_sq_position - avg_position**2
+   WRITE (unit=2, fmt=*) msd
+
+   ! empirical distribution
    WRITE (unit=4, fmt=*) PN/runs
 
+   ! compute theoretical distribution
    x_slices(1) = -l*N
    do i = 2, n_slices
       x_slices(i) = x_slices(i - 1) + l
    end do
    xm = (N - x_slices)/2.
    xp = (N + x_slices)/2.
-
    WRITE (unit=4, fmt=*) Gamma(real(N) + 1.)/(Gamma(xp + 1.)*Gamma(xm + 1.))*p_right**xp*p_left**xm
+
+   ! compute theoretical limit distribution
+   WRITE (unit=4, fmt=*) exp(-(x_slices(:) - avg_position(N)) ** 2 /(2*msd(N))) * sqrt(2 / (pi*msd(N)))
 
    deallocate (moves)
    deallocate (l_vec)
    deallocate (x)
    deallocate (avg_position)
    deallocate (avg_sq_position)
+   deallocate (msd)
+
+   deallocate (xm)
+   deallocate (xp)
+   deallocate (x_slices)
+   deallocate (PN)
 
 contains
 
