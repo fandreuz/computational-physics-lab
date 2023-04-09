@@ -32,5 +32,7 @@
 *.app
 
 **/*.dat
+**/*.txt
+
 venv/**
 .vscode/**
