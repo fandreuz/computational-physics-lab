@@ -1,9 +1,9 @@
 program gauss_metropolis
    implicit none
    integer, parameter :: dp = selected_real_kind(13)
-   integer :: i, n, ibin, maxbin
+   integer :: i, n, ibin, maxbin, acc
    real(kind=dp):: sigma, rnd, delta, x0, deltaisto
-   real(kind=dp):: x, x1, x2, x3, x4, xp, expx, expxp, w, acc
+   real(kind=dp):: x, x1, x2, x3, x4, xp, expx, expxp, w
    real, dimension(:), allocatable :: istog
    character(len=13), save :: format1 = "(a7,2x,2f9.5)"
 
@@ -24,22 +24,25 @@ program gauss_metropolis
       x2 = x2 + x**2
       x3 = x3 + x**3
       x4 = x4 + x**4
+
       expx = -x**2/(2*sigma**2)
       call random_number(rnd)
       xp = x + delta*(rnd - 0.5_dp)
       expxp = -xp**2/(2*sigma**2)
       w = exp(expxp - expx)
+
       call random_number(rnd)
       if (w > rnd) then
          x = xp
-         acc = acc + 1.0_dp
+         acc = acc + 1
       end if
+      
       ibin = nint(x/deltaisto)
       if (abs(ibin) < maxbin/2) istog(ibin) = istog(ibin) + 1
    end do
 
    write (unit=*, fmt=*) "# n, x0, delta = ", n, x0, delta
-   write (unit=*, fmt=*) "# acceptance ratio = ", acc/n
+   write (unit=*, fmt=*) "# acceptance ratio = ", real(acc)/real(n)
    write (unit=*, fmt=*) "# Results (simulation vs. exact results):"
    write (unit=*, fmt=format1) "# <x>  = ", x1/n, 0.0_dp
    write (unit=*, fmt=format1) "# <x^2>= ", x2/n, sigma**2
