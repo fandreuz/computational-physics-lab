@@ -20,4 +20,4 @@ Numerical integration and Monte Carlo methods.
 ![](imgs/monte_carlo_error.png)
 
 ## Week 6
-TODO
+Metropolis Monte Carlo method.
