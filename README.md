@@ -21,3 +21,4 @@ Numerical integration and Monte Carlo methods.
 
 ## Week 6
 Metropolis Monte Carlo method.
+![](imgs/distribution.png)
