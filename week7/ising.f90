@@ -37,9 +37,9 @@ contains
       read *, nequil
       print *, "# MC steps per spin for averages ="
       read *, nmcs
-      print *, "seed (1:8) ="
-      read *, seed
-      call random_seed(put=seed)
+      !print *, "seed (1:8) ="
+      !read *, seed
+      !call random_seed(put=seed)
       M = 0.0_double
       !  random initial configuration
       !  compute initial magnetization
