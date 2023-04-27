@@ -153,7 +153,7 @@ contains
 
    subroutine output(cum)
       real(kind=double), dimension(5), intent(inout) :: cum
-      real(kind=double) :: eave, e2ave, mave, m2ave, abs_mave
+      real(kind=double) :: eave, e2ave, mave, m2ave, abs_mave, c, xi
       real :: acceptance_prob
       acceptance_prob = real(accept)/real(N)/real(nmcs + nequil)
       eave = cum(1)/real(N)/real(nmcs)    ! to avoid interger overflow
@@ -168,6 +168,11 @@ contains
       print *, "mean magnetization  per spin        =", mave
       print *, "mean squared magnetization per spin =", m2ave
       print *, "mean |magnetization| per spin       =", abs_mave
+
+      c = (cum(2) - cum(1))/real(nmcs)/(T*T)/real(N)
+      xi = (cum(4) - cum(3))/real(nmcs)/T/real(N)
+      print *, "Heat capacity                =", c
+      print *, "Magnetic susceptibility              =", xi
    end subroutine output
 
 end module common
