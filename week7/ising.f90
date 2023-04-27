@@ -182,12 +182,18 @@ program ising
    do imcs = 1, nequil
       call metropolis()
    end do
+
+   open (unit=7, file='energy_magnetization.dat', status='replace')
    !  accumulate data while updating spins
    do imcs = 1, nmcs
       call metropolis()
       call data(cum)
+
+      write (7, *) E/real(N), M/real(N)
    end do
    call output(cum)
+
+   close (7)
 
 ! write the coordinates of spins up and down on files for plotting
    open (unit=8, file='ising-up.dat', status='replace')
