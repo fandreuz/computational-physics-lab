@@ -169,8 +169,8 @@ contains
       print *, "mean squared magnetization per spin =", m2ave
       print *, "mean |magnetization| per spin       =", abs_mave
 
-      c = (cum(2) - cum(1))/real(nmcs)/(T*T)/real(N)
-      xi = (cum(4) - cum(3))/real(nmcs)/T/real(N)
+      c = (cum(2)/real(nmcs) - (cum(1)/real(nmcs))**2)/(T*T)/real(N)
+      xi = (cum(4)/real(nmcs) - (cum(3)/real(nmcs))**2)/T/real(N)
       print *, "Heat capacity                =", c
       print *, "Magnetic susceptibility              =", xi
    end subroutine output
