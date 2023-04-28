@@ -20,16 +20,16 @@ module common
    integer, public, dimension(8) :: seed
    integer, public :: N, L, nmcs, nequil
    integer, public :: accept
+   logical :: pbc
 contains
 
-   subroutine initial(nequil, cum)
-      integer, intent(out) :: nequil
+   subroutine initial(cum)
       real(kind=double), dimension(5), intent(out) :: cum
       integer :: x, y, up, right, sums, i, dE
       real :: rnd
       print *, "linear dimension of lattice L ="
       read *, L
-      allocate (spin(L, L))
+      allocate (spin(0:L + 1, 0:L + 1))
       print *, "reduced temperature T ="
       read *, T
       N = L*L
@@ -40,6 +40,8 @@ contains
       !print *, "seed (1:8) ="
       !read *, seed
       !call random_seed(put=seed)
+      print *, "# Use PBC ="
+      read *, pbc
       M = 0.0_double
       !  random initial configuration
       !  compute initial magnetization
@@ -54,21 +56,29 @@ contains
             M = M + spin(x, y)
          end do
       end do
+
+      do i = 1, L
+         if (pbc) then
+            spin(0, i) = spin(L, i)
+            spin(L + 1, i) = spin(1, i)
+
+            spin(i, 0) = spin(i, L)
+            spin(i, L + 1) = spin(i, 1)
+         else
+            spin(0, i) = 0
+            spin(L + 1, i) = 0
+
+            spin(i, 0) = 0
+            spin(i, L + 1) = 0
+         end if
+      end do
+
       !  compute initial energy
       E = 0.0_double
       do y = 1, L
-         !  periodic boundary conditions
-         if (y == L) then
-            up = 1
-         else
-            up = y + 1
-         end if
+         up = y + 1
          do x = 1, L
-            if (x == L) then
-               right = 1
-            else
-               right = x + 1
-            end if
+            right = x + 1
             sums = spin(x, up) + spin(right, y)
 ! calculate the initial energy summing all over pairs
 ! (gor a given spin, consider only the up NN and the right NN
@@ -105,6 +115,14 @@ contains
             accept = accept + 1
             M = M + 2*spin(x, y)  ! factor 2 is to account for the variation:
             E = E + dE           ! (-(-)+(+))
+
+            if (pbc) then
+               if (x == 1) spin(L + 1, y) = spin(x, y)
+               if (x == L) spin(0, y) = spin(x, y)
+
+               if (y == 1) spin(x, L + 1) = spin(x, y)
+               if (y == L) spin(x, 0) = spin(x, y)
+            end if
          end if
       end do
    end subroutine metropolis
@@ -117,26 +135,10 @@ contains
       integer :: right
       integer :: up
       integer :: down
-      if (x == 1) then
-         left = spin(L, y)
-         right = spin(2, y)
-      else if (x == L) then
-         left = spin(L - 1, y)
-         right = spin(1, y)
-      else
-         left = spin(x - 1, y)
-         right = spin(x + 1, y)
-      end if
-      if (y == 1) then
-         up = spin(x, 2)
-         down = spin(x, L)
-      else if (y == L) then
-         up = spin(x, 1)
-         down = spin(x, L - 1)
-      else
-         up = spin(x, y + 1)
-         down = spin(x, y - 1)
-      end if
+      left = spin(x - 1, y)
+      right = spin(x + 1, y)
+      up = spin(x, y + 1)
+      down = spin(x, y - 1)
       DeltaE_result = 2*spin(x, y)*(left + right + up + down)
 ! also here the factor 2 is to account for the variation
    end function DeltaE
@@ -182,7 +184,7 @@ program ising
    use common
    integer :: imcs, ispin, jspin
    real(kind=double), dimension(5) :: cum
-   call initial(nequil, cum)
+   call initial(cum)
    !  equilibrate system
    do imcs = 1, nequil
       call metropolis()
@@ -203,8 +205,8 @@ program ising
 ! write the coordinates of spins up and down on files for plotting
    open (unit=8, file='ising-up.dat', status='replace')
    open (unit=9, file='ising-down.dat', status='replace')
-   do jspin = 1, L
-      do ispin = 1, L
+   do jspin = 0, L+1
+      do ispin = 0, L+1
          if (spin(ispin, jspin) == 1) write (8, *) ispin, jspin
          if (spin(ispin, jspin) == -1) write (9, *) ispin, jspin
       end do
