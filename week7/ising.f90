@@ -205,8 +205,8 @@ program ising
 ! write the coordinates of spins up and down on files for plotting
    open (unit=8, file='ising-up.dat', status='replace')
    open (unit=9, file='ising-down.dat', status='replace')
-   do jspin = 0, L+1
-      do ispin = 0, L+1
+   do jspin = 0, L + 1
+      do ispin = 0, L + 1
          if (spin(ispin, jspin) == 1) write (8, *) ispin, jspin
          if (spin(ispin, jspin) == -1) write (9, *) ispin, jspin
       end do
