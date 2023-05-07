@@ -26,3 +26,6 @@ Metropolis Monte Carlo method.
 ## Week 7
 Ising model.
 ![](imgs/system.png)
+
+## Week 8
+Quantum Monte Carlo.
