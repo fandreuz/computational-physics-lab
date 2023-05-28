@@ -27,6 +27,11 @@ program latticegas
 
    character(len=15)::filename
 
+   call random_seed(sizer)
+   allocate (seed(sizer))
+   seed = 0.
+   call random_seed(put=seed)
+
    ! Set average time  between jumps and jump length Units is  s and cm
    ! although actually this is not needed for the simulation
    deltat = 1.d0 ! or 1d-9 for  1 ns
@@ -38,11 +43,6 @@ program latticegas
    read *, Np
    print *, " L>"
    read *, L
-   call random_seed(sizer)
-   allocate (seed(sizer))
-   print *, 'Here the seed has ', sizer, ' components; insert them (or print "/") >'
-   read (*, *) seed
-   call random_seed(put=seed)
    print *, 'Doing lattice gas walk to', Nsteps, 'MC steps, initial seed', seed
    print *, 'using', Np, ' particles  on a', L, '^2 square lattice'
 
