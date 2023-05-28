@@ -9,12 +9,11 @@ program latticegas
    double precision, allocatable :: dx(:), dy(:)
 
    integer  :: unit_number
-   integer  :: Nsteps, Np, L
    integer  :: istep, isubstep
    integer  :: dir, i, j, nfail, njumps, sizer
    integer, dimension(:), allocatable :: seed
 
-   integer, parameter  ::  MAXINT = 1000000000  ! Variables  for  counting
+   integer, parameter  ::  MAXINT = 1000000000, Nsteps=1000, Np=13, L=20
    logical, parameter :: FOLLOW_EACH_PARTICLE = .false.
 
    ! allowed    directions
@@ -37,13 +36,7 @@ program latticegas
    deltat = 1d-9 ! 1 ns
    a = 2e-8      ! 2 Ang
 
-   print *, " Nsteps>"
-   read *, Nsteps
-   print *, " Np>"
-   read *, Np
-   print *, " L>"
-   read *, L
-   print *, 'Doing lattice gas walk to', Nsteps, 'MC steps, initial seed', seed
+   print *, 'Doing lattice gas walk to', Nsteps
    print *, 'using', Np, ' particles  on a', L, '^2 square lattice'
 
    if (Np >= L*L) then
