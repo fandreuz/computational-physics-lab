@@ -5,9 +5,9 @@ import matplotlib
 font = {"size": 15}
 matplotlib.rc("font", **font)
 
-D = np.loadtxt("fort.1")[:, 3]
+D = np.loadtxt("fort.1")[400:, 3]
 l = len(D)
-block_sizes = [1, 5, 10, 25, 50, 75, 100, 125, 150, 200]
+block_sizes = [1, 5, 10, 25, 50, 75, 100, 125, 150]
 
 
 def block_average(block_size):
@@ -20,6 +20,7 @@ def block_average(block_size):
 stdevs = list(map(block_average, block_sizes))
 
 plt.figure(figsize=(10, 6))
+plt.title(r"$\sigma_b / \sqrt{n_b - 1}$")
 
 plt.plot(block_sizes, stdevs, "-o")
 
