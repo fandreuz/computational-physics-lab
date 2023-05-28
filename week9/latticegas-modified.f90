@@ -34,10 +34,10 @@ program latticegas
    seed = 0.
    call random_seed(put=seed)
 
-   ! Set average time  between jumps and jump length Units is  s and cm
+   ! Set average time  between jumps and jump length Units is s and cm
    ! although actually this is not needed for the simulation
-   deltat = 1.d0 ! or 1d-9 for  1 ns
-   a = 1.d0      ! or 2e-8 for  2 Ang
+   deltat = 1d-9 ! 1 ns
+   a = 2e-8      ! 2 Ang
 
    print *, " Nsteps>"
    read *, Nsteps
