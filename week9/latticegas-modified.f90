@@ -133,7 +133,7 @@ program latticegas
             !  Get  diffusion coefficient  by  proper scaling
             D = drsqave/(4*t)
             Dave_in_t = Dave_in_t + D
-            write (1, fmt='(5(1pe10.2,2x))') t, drsqave, sqrt(vardrsqave/Np), D, Dave_in_t/t
+            write (1, fmt='(5(1pe10.2,2x))') t, drsqave, sqrt(vardrsqave/Np), D, Dave_in_t / (istep / skip_print)
          end if
 
       end if
