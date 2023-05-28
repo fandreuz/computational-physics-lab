@@ -12,7 +12,7 @@ program latticegas
    integer  :: dir, i, j, nfail, njumps, sizer
    integer, dimension(:), allocatable :: seed
 
-   integer, parameter  ::  MAXINT = 1000000000, Nsteps = 10000000, Np = 13, L = 20
+   integer, parameter  ::  MAXINT = 1000000000, Nsteps = 1000, Np = 13, L = 20, skip_print = 5
    logical, parameter :: FOLLOW_EACH_PARTICLE = .false.
    double precision, parameter :: deltat = 1d-9, a = 2e-8
 
@@ -107,10 +107,10 @@ program latticegas
          lattice(x(i), y(i)) = .false.
          lattice(xnew(j), ynew(j)) = .true.
 
-         x(i) = xnew(j);
-         y(i) = ynew(j);
-         dx(i) = dx(i) + dxtrial(j);
-         dy(i) = dy(i) + dytrial(j);
+         x(i) = xnew(j); 
+         y(i) = ynew(j); 
+         dx(i) = dx(i) + dxtrial(j); 
+         dy(i) = dy(i) + dytrial(j); 
          ! Use with caution
          if (FOLLOW_EACH_PARTICLE) then
             unit_number = 10 + i
@@ -118,14 +118,14 @@ program latticegas
          end if
       end do
 
-      if (mod(istep, 1000) == 0) then
+      if (mod(istep, skip_print) == 0) then
          ! Get total displacement from dx,dy
-         dxsum = sum(dx) * a;
-         dysum = sum(dy) * a;
-         dxsqsum = sum((dx*a)*(dx*a));
-         dysqsum = sum((dy*a)*(dy*a));
-         dx4thsum = sum((dx*a)**4);
-         dy4thsum = sum((dy*a)**4);
+         dxsum = sum(dx)*a; 
+         dysum = sum(dy)*a; 
+         dxsqsum = sum((dx*a)*(dx*a)); 
+         dysqsum = sum((dy*a)*(dy*a)); 
+         dx4thsum = sum((dx*a)**4); 
+         dy4thsum = sum((dy*a)**4); 
          drsqave = (dxsqsum + dysqsum)/Np
          vardrsqave = (dx4thsum + dy4thsum)/Np - ((dxsqsum + dysqsum)/Np)**2
 
