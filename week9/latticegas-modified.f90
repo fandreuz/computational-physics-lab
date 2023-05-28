@@ -15,6 +15,8 @@ program latticegas
    integer, dimension(:), allocatable :: seed
 
    integer, parameter  ::  MAXINT = 1000000000  ! Variables  for  counting
+   logical, parameter :: FOLLOW_EACH_PARTICLE = .false.
+
    ! allowed    directions
    integer :: free(4), nfree
    integer :: dxtrial(4), dytrial(4)
@@ -56,11 +58,7 @@ program latticegas
    allocate (dx(Np), dy(Np))
 
    ! Mark all positions as empty
-   do i = 0, L - 1
-      do j = 0, L - 1
-         lattice(i, j) = .false.
-      end do
-   end do
+   lattice = .false.
 
    ! enumeration of directions: 1 left 2 right 3 up 4 down
    dxtrial(1) = +1; dytrial(1) = 0; 
@@ -71,10 +69,9 @@ program latticegas
    ! Generate particles on lattice
    do i = 1, Np
       do ! Loop until empty position found
-         !  To   be  on  safe  side,   check  that  upper   limit  not  reached
          call random_number(rnd)
-         x(i) = int(rnd(1)*L); if (x(i) >= L) x(i) = L - 1; 
-         y(i) = int(rnd(2)*L); if (y(i) >= L) y(i) = L - 1; 
+         x(i) = floor(rnd(1)*L); 
+         y(i) = floor(rnd(2)*L); 
          if (lattice(x(i), y(i))) then
             ! Position already filled, loop to find new trial
             cycle
@@ -93,16 +90,13 @@ program latticegas
    t = 0.0; Dave_in_t = 0.d0
    do istep = 0, Nsteps - 1 ! Loop over MC steps
       do isubstep = 1, Np ! Do all particles on average once every MC step
-         ! Pick one particle at random
          call random_number(rnd1)
          i = int(rnd1*Np) + 1; if (i > Np) i = Np; 
          ! Find possible directions, store it in free()
          nfree = 0
          do j = 1, 4
-            xnew(j) = x(i) + dxtrial(j); 
-            if (xnew(j) >= L) xnew(j) = 0; if (xnew(j) < 0) xnew(j) = L - 1; 
-            ynew(j) = y(i) + dytrial(j); 
-            if (ynew(j) >= L) ynew(j) = 0; if (ynew(j) < 0) ynew(j) = L - 1; 
+            xnew(j) = mod(x(i) + dxtrial(j), L); 
+            ynew(j) = mod(y(i) + dytrial(j), L); 
             if (.not. lattice(xnew(j), ynew(j))) then
                ! Success: position free
                nfree = nfree + 1
@@ -118,43 +112,31 @@ program latticegas
          njumps = njumps + 1
 
          !  Pick  one of  the  possible directions  randomly
-         !  Note that  the dir>nfree  check here  really is  needed!
          call random_number(rnd1)
          dir = int(rnd1*nfree) + 1; if (dir > nfree) dir = nfree
          j = free(dir)
 
-         ! Now x(i),y(i) is old position and xnew(j),ynew(j) new
-         ! Double check that new site really is free
-         if (lattice(xnew(j), ynew(j))) then
-            print *, 'ERROR:    THIS   SHOULD   BE   IMPOSSIBLE'
-            print *, i, j, dir, nfree
-            print *, free
-            print *, x(i), y(i), xnew(j), ynew(j)
-            STOP 'ERROR  new  site  bug'
-         end if
          !Empty  old  position  and  fill  new
          lattice(x(i), y(i)) = .false.
          lattice(xnew(j), ynew(j)) = .true.
 
          x(i) = xnew(j); y(i) = ynew(j); 
          dx(i) = dx(i) + dxtrial(j); dy(i) = dy(i) + dytrial(j); 
-!       if you want to follow each particle (but pay attention: you can fill your disk space!)
-!        unit_number = 10+i
-!        write(unit_number,*)dx(i)**2+dy(i)**2     ! see "part[particle_index]"
+         ! Use with caution
+         if (FOLLOW_EACH_PARTICLE) then
+            unit_number = 10 + i
+            write (unit_number, *) dx(i)**2 + dy(i)**2     ! see "part[particle_index]"
+         end if
       end do
 
       if (mod(istep*Np, 1000000) == 0) then
          ! Get total displacement from dx,dy
-         dxsum = 0.0d0; dysum = 0.0d0; 
-         dxsqsum = 0.0d0; dysqsum = 0.0d0; 
-         dx4thsum = 0.0d0; dy4thsum = 0.0d0; 
-         do i = 1, Np
-            dxsum = dxsum + dx(i); dysum = dysum + dy(i); 
-            dxsqsum = dxsqsum + dx(i)*dx(i); 
-            dysqsum = dysqsum + dy(i)*dy(i); 
-            dx4thsum = dx4thsum + dx(i)**4; 
-            dy4thsum = dy4thsum + dy(i)**4; 
-         end do
+         dxsum = sum(dx); 
+         dysum = sum(dy); 
+         dxsqsum = sum(dx*dx); 
+         dysqsum = sum(dy*dy); 
+         dx4thsum = sum(dx**4); 
+         dy4thsum = sum(dy**4); 
          drsqave = (dxsqsum + dysqsum)/Np
          vardrsqave = (dx4thsum + dy4thsum)/Np - ((dxsqsum + dysqsum)/Np)**2
 
@@ -162,7 +144,7 @@ program latticegas
             !  Get  diffusion coefficient  by  proper scaling
             D = drsqave*a*a/(4*t)
             Dave_in_t = Dave_in_t + D
-            write (1, fmt='(5(1pe10.2,2x))') t, drsqave, sqrt(vardrsqave/Np), D, Dave_in_t/t  ! see "aveNp.run_number"
+            write (1, fmt='(5(1pe10.2,2x))') t, drsqave, sqrt(vardrsqave/Np), D, Dave_in_t/t
          end if
 
       end if
@@ -172,12 +154,10 @@ program latticegas
    end do
 
    !  Get   total  displacement   from  dx,dy
-   dxsum = 0.0d0; dysum = 0.0d0; 
-   dxsqsum = 0.0d0; dysqsum = 0.0d0; 
-   do i = 1, Np
-      dxsum = dxsum + dx(i); dysum = dysum + dy(i); 
-      dxsqsum = dxsqsum + dx(i)*dx(i); dysqsum = dysqsum + dy(i)*dy(i); 
-   end do
+   dxsum = sum(dx); 
+   dysum = sum(dy); 
+   dxsqsum = sum(dx*dx); 
+   dysqsum = sum(dy*dy); 
    print *, 'dxsum', dxsum, '   dysum', dysum
    print *, 'dxsqsum', dxsqsum, ' dysqsum', dysqsum
 
