@@ -13,11 +13,11 @@ program latticegas
    integer  :: dir, i, j, nfail, njumps, sizer
    integer, dimension(:), allocatable :: seed
 
-   integer, parameter  ::  MAXINT = 1000000000, Nsteps=1000, Np=13, L=20
+   integer, parameter  ::  MAXINT = 1000000000, Nsteps = 1000, Np = 13, L = 20
    logical, parameter :: FOLLOW_EACH_PARTICLE = .false.
 
    ! allowed    directions
-   integer :: free(4), nfree
+   integer :: free_locations(4), nfree
    integer :: dxtrial(4), dytrial(4)
    integer :: xnew(4), ynew(4)
 
@@ -61,6 +61,8 @@ program latticegas
    do i = 1, Np
       do ! Loop until empty position found
          call random_number(rnd)
+         ! Just to be safe from rnd=1.0
+         rnd = rnd*(1 - 1.e-16)
          x(i) = floor(rnd(1)*L); 
          y(i) = floor(rnd(2)*L); 
          if (lattice(x(i), y(i))) then
@@ -83,15 +85,14 @@ program latticegas
       do isubstep = 1, Np ! Do all particles on average once every MC step
          call random_number(rnd1)
          i = int(rnd1*Np) + 1; if (i > Np) i = Np; 
-         ! Find possible directions, store it in free()
+         ! Find possible directions, store it in free_locations
          nfree = 0
          do j = 1, 4
-            xnew(j) = mod(x(i) + dxtrial(j), L); 
-            ynew(j) = mod(y(i) + dytrial(j), L); 
+            xnew(j) = modulo(x(i) + dxtrial(j), L); 
+            ynew(j) = modulo(y(i) + dytrial(j), L); 
             if (.not. lattice(xnew(j), ynew(j))) then
-               ! Success: position free
                nfree = nfree + 1
-               free(nfree) = j
+               free_locations(nfree) = j
             end if
          end do
 
@@ -105,7 +106,7 @@ program latticegas
          !  Pick  one of  the  possible directions  randomly
          call random_number(rnd1)
          dir = int(rnd1*nfree) + 1; if (dir > nfree) dir = nfree
-         j = free(dir)
+         j = free_locations(dir)
 
          !Empty  old  position  and  fill  new
          lattice(x(i), y(i)) = .false.
