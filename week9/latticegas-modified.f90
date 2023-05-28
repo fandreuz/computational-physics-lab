@@ -25,9 +25,7 @@ program latticegas
    real, dimension(2) :: rnd(2)
    real :: rnd1
    double precision :: dxsum, dysum, dxsqsum, dysqsum, dx4thsum, dy4thsum, vardrsqave
-   double precision :: t, deltat, drsqave, D, a, help, Dave_in_t
-
-   character(len=15)::filename
+   double precision :: t, deltat, drsqave, D, a, Dave_in_t
 
    call random_seed(sizer)
    allocate (seed(sizer))
