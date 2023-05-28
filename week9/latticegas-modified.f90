@@ -5,16 +5,16 @@ program latticegas
    implicit none
 
    logical, allocatable :: lattice(:, :)
-   integer, allocatable :: x(:), y(:)
-   double precision, allocatable :: dx(:), dy(:)
+   integer, allocatable :: x(:), y(:), dx(:), dy(:)
 
    integer  :: unit_number
    integer  :: istep, isubstep
    integer  :: dir, i, j, nfail, njumps, sizer
    integer, dimension(:), allocatable :: seed
 
-   integer, parameter  ::  MAXINT = 1000000000, Nsteps = 1000, Np = 13, L = 20
+   integer, parameter  ::  MAXINT = 1000000000, Nsteps = 10000000, Np = 13, L = 20
    logical, parameter :: FOLLOW_EACH_PARTICLE = .false.
+   double precision, parameter :: deltat = 1d-9, a = 2e-8
 
    ! allowed    directions
    integer :: free_locations(4), nfree
@@ -24,17 +24,12 @@ program latticegas
    real, dimension(2) :: rnd(2)
    real :: rnd1
    double precision :: dxsum, dysum, dxsqsum, dysqsum, dx4thsum, dy4thsum, vardrsqave
-   double precision :: t, deltat, drsqave, D, a, Dave_in_t
+   double precision :: t, drsqave, D, Dave_in_t
 
    call random_seed(sizer)
    allocate (seed(sizer))
    seed = 0.
    call random_seed(put=seed)
-
-   ! Set average time  between jumps and jump length Units is s and cm
-   ! although actually this is not needed for the simulation
-   deltat = 1d-9 ! 1 ns
-   a = 2e-8      ! 2 Ang
 
    print *, 'Doing lattice gas walk to', Nsteps
    print *, 'using', Np, ' particles  on a', L, '^2 square lattice'
@@ -112,8 +107,10 @@ program latticegas
          lattice(x(i), y(i)) = .false.
          lattice(xnew(j), ynew(j)) = .true.
 
-         x(i) = xnew(j); y(i) = ynew(j); 
-         dx(i) = dx(i) + dxtrial(j); dy(i) = dy(i) + dytrial(j); 
+         x(i) = xnew(j);
+         y(i) = ynew(j);
+         dx(i) = dx(i) + dxtrial(j);
+         dy(i) = dy(i) + dytrial(j);
          ! Use with caution
          if (FOLLOW_EACH_PARTICLE) then
             unit_number = 10 + i
@@ -121,20 +118,20 @@ program latticegas
          end if
       end do
 
-      if (mod(istep*Np, 1000000) == 0) then
+      if (mod(istep, 1000) == 0) then
          ! Get total displacement from dx,dy
-         dxsum = sum(dx); 
-         dysum = sum(dy); 
-         dxsqsum = sum(dx*dx); 
-         dysqsum = sum(dy*dy); 
-         dx4thsum = sum(dx**4); 
-         dy4thsum = sum(dy**4); 
+         dxsum = sum(dx) * a;
+         dysum = sum(dy) * a;
+         dxsqsum = sum((dx*a)*(dx*a));
+         dysqsum = sum((dy*a)*(dy*a));
+         dx4thsum = sum((dx*a)**4);
+         dy4thsum = sum((dy*a)**4);
          drsqave = (dxsqsum + dysqsum)/Np
          vardrsqave = (dx4thsum + dy4thsum)/Np - ((dxsqsum + dysqsum)/Np)**2
 
          if (t > 0.0) then
             !  Get  diffusion coefficient  by  proper scaling
-            D = drsqave*a*a/(4*t)
+            D = drsqave/(4*t)
             Dave_in_t = Dave_in_t + D
             write (1, fmt='(5(1pe10.2,2x))') t, drsqave, sqrt(vardrsqave/Np), D, Dave_in_t/t
          end if
@@ -146,18 +143,18 @@ program latticegas
    end do
 
    !  Get   total  displacement   from  dx,dy
-   dxsum = sum(dx); 
-   dysum = sum(dy); 
-   dxsqsum = sum(dx*dx); 
-   dysqsum = sum(dy*dy); 
+   dxsum = sum(dx*a); 
+   dysum = sum(dy*a); 
+   dxsqsum = sum((dx*a)*(dx*a)); 
+   dysqsum = sum((dy*a)*(dy*a)); 
    print *, 'dxsum', dxsum, '   dysum', dysum
    print *, 'dxsqsum', dxsqsum, ' dysqsum', dysqsum
 
-   drsqave = (dxsqsum + dysqsum)/(1.0*Np)
+   drsqave = (dxsqsum + dysqsum)/Np
    print *, 'drsqave', drsqave
    print *, 'Number of  failed jumps', nfail, ' number of  successes', njumps
    ! Get diffusion  coefficient  by  proper scaling
-   D = drsqave*a*a/(4*t)
+   D = drsqave/(4*t)
    write (*, fmt='(3(a,1pe10.2))') 'Density Np/L^2=', real(Np)/L**2, ' :  t=', t, ';   D=', D
 
 end program latticegas
