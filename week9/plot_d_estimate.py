@@ -16,7 +16,7 @@ data = [data[:i].mean() for i in n_samples]
 
 plt.figure(figsize=(10, 6))
 
-plt.plot(n_samples, data, "-o")
+plt.plot(n_samples, data, "-o", label="Average")
 plt.hlines(D_th, 1, len(data), colors="r", linestyles="dashed", label="Theoretical")
 
 plt.xlabel("N. of samples")

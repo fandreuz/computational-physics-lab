@@ -8,7 +8,7 @@ matplotlib.rc("font", **font)
 
 a = 2.0e-8
 L = 20
-skip = 5
+skip = 1
 
 data = np.loadtxt("fort.1")[:, :2]
 
@@ -34,11 +34,13 @@ under_limit_count = len(data[:, 1] < limit)
 reg = LinearRegression(fit_intercept=False).fit(
     np.arange(under_limit_count)[:, None] * skip, data[:under_limit_count, 1][:, None]
 )
+np.round(reg.coef_[0], 3)
+coeff_label = "{:.3E}".format(float(reg.coef_[0]))
 plt.plot(
     data[:, 0],
     reg.coef_[0] * np.arange(1, len(data) + 1) * skip,
     "-",
-    label="Linear fit",
+    label=f"Linear fit (slope={coeff_label})",
 )
 
 plt.legend()
