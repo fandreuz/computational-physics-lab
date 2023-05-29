@@ -20,7 +20,7 @@ plt.hlines(
     0,
     data[:, 0].min(),
     data[:, 0].max(),
-    colors="g",
+    colors="r",
     linestyles="dashed",
     label=r"$\langle D \rangle_T(t>{:.1E})$".format(equilibration * dt),
 )
